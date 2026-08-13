@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suraj Mishra — Product Manager</title>
+<meta name="description" content="Suraj Mishra — Associate Product Manager and Product Analyst candidate. Bengaluru, India.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Instrument+Sans:ital,wght@0,400..600;1,400..500&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300..400;1,6..72,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F7F7;
+  --card:#FFFFFF;
+  --ink:#111819;
+  --ink-2:#44545A;
+  --ink-3:#7B8B90;
+  --rule:#DBE4E3;
+  --rule-soft:#EAF0EF;
+  --accent:#0B6B62;
+  --accent-wash:#E4EFED;
+  --display:"Bricolage Grotesque",system-ui,sans-serif;
+  --body:"Instrument Sans",system-ui,sans-serif;
+  --serif:"Newsreader",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --shell:1180px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:15px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+  padding:clamp(18px,4vw,56px) clamp(14px,4vw,40px) 72px;
+}
+.sheet{
+  max-width:var(--shell);
+  margin:0 auto;
+  background:var(--card);
+  border:1px solid var(--rule);
+  border-radius:3px;
+}
+.pad{padding:clamp(26px,5vw,60px)}
+ 
+/* ---------- header ---------- */
+.masthead{border-bottom:1px solid var(--rule)}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--accent);
+  display:block;
+  margin-bottom:18px;
+}
+h1{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(2.5rem,8.4vw,5.1rem);
+  line-height:.92;
+  letter-spacing:-.035em;
+  font-stretch:92%;
+}
+h1 .surname{color:var(--ink-3)}
+.tagline{
+  font-family:var(--body);
+  font-weight:500;
+  font-size:clamp(1rem,2.1vw,1.2rem);
+  color:var(--ink-2);
+  margin-top:20px;
+  max-width:44ch;
+}
+.contact{
+  margin-top:28px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px 22px;
+  font-family:var(--mono);
+  font-size:12.5px;
+}
+.contact a,.contact span{color:var(--ink-2);text-decoration:none}
+.contact a{border-bottom:1px solid var(--rule);padding-bottom:2px;transition:color .18s,border-color .18s}
+.contact a:hover{color:var(--accent);border-color:var(--accent)}
+ 
+/* ---------- signature: metric ledger ---------- */
+.ledger{
+  border-bottom:1px solid var(--rule);
+  background:var(--accent-wash);
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+}
+.metric{
+  padding:22px clamp(14px,2.4vw,26px);
+  border-left:1px solid rgba(11,107,98,.16);
+}
+.metric:first-child{border-left:0}
+.metric b{
+  display:block;
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(1.4rem,3.2vw,2.05rem);
+  line-height:1;
+  letter-spacing:-.03em;
+  color:var(--accent);
+}
+.metric small{
+  display:block;
+  margin-top:8px;
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:#0B6B62;
+  opacity:.72;
+  line-height:1.4;
+}
+ 
+/* ---------- standfirst ---------- */
+.standfirst{
+  border-bottom:1px solid var(--rule);
+}
+.standfirst p{
+  font-family:var(--serif);
+  font-weight:300;
+  font-size:clamp(1.06rem,2.3vw,1.42rem);
+  line-height:1.5;
+  letter-spacing:-.011em;
+  color:var(--ink);
+  max-width:66ch;
+}
+.standfirst p + p{margin-top:.7em}
+.standfirst em{font-style:italic;color:var(--accent)}
+ 
+/* ---------- body grid ---------- */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.col-main{padding:clamp(26px,5vw,58px);min-width:0}
+.col-side{
+  padding:clamp(26px,5vw,58px) clamp(24px,3.4vw,38px);
+  border-left:1px solid var(--rule);
+  background:#FCFDFD;
+}
+ 
+h2{
+  font-family:var(--mono);
+  font-weight:500;
+  font-size:11px;
+  letter-spacing:.19em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  padding-bottom:12px;
+  border-bottom:1px solid var(--ink);
+  margin-bottom:30px;
+}
+.block + .block{margin-top:46px}
+ 
+/* ---------- entries ---------- */
+.entry + .entry{margin-top:34px;padding-top:34px;border-top:1px solid var(--rule-soft)}
+.entry-head{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:4px 18px;
+}
+.org{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:1.32rem;
+  letter-spacing:-.02em;
+  line-height:1.2;
+}
+.dates{
+  font-family:var(--mono);
+  font-size:11.5px;
+  letter-spacing:.05em;
+  color:var(--ink-3);
+  white-space:nowrap;
+}
+.role{
+  font-weight:600;
+  font-size:.95rem;
+  color:var(--accent);
+  margin-top:5px;
+}
+.org-note{
+  font-size:.84rem;
+  color:var(--ink-3);
+  margin-top:3px;
+}
+ul.points{list-style:none;margin-top:17px}
+ul.points li{
+  position:relative;
+  padding-left:20px;
+  color:var(--ink-2);
+  font-size:.935rem;
+}
+ul.points li + li{margin-top:11px}
+ul.points li::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:.66em;
+  width:9px;
+  height:1px;
+  background:var(--accent);
+}
+ul.points strong{color:var(--ink);font-weight:600}
+ 
+/* ---------- side ---------- */
+.skill-group + .skill-group{margin-top:22px}
+.skill-label{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:9px;
+}
+.skill-group p{font-size:.9rem;color:var(--ink-2)}
+.edu strong{display:block;font-family:var(--display);font-weight:700;font-size:1.05rem;letter-spacing:-.015em}
+.edu span{display:block;font-size:.9rem;color:var(--ink-2);margin-top:4px}
+.edu .honour{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid var(--rule);
+  font-size:.86rem;
+  color:var(--ink-2);
+}
+.edu .honour b{color:var(--accent);font-weight:600}
+.side-links{list-style:none}
+.side-links li + li{margin-top:9px}
+.side-links a{
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--ink-2);
+  text-decoration:none;
+  display:inline-block;
+  border-bottom:1px solid var(--rule);
+  padding-bottom:2px;
+  transition:color .18s,border-color .18s;
+}
+.side-links a:hover{color:var(--accent);border-color:var(--accent)}
+ 
+/* ---------- utility bar ---------- */
+.utility{
+  max-width:var(--shell);
+  margin:0 auto 16px;
+  display:flex;
+  justify-content:flex-end;
+}
+.print-btn{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--ink-2);
+  background:transparent;
+  border:1px solid var(--rule);
+  border-radius:2px;
+  padding:9px 16px;
+  cursor:pointer;
+  transition:border-color .18s,color .18s;
+}
+.print-btn:hover{border-color:var(--accent);color:var(--accent)}
+ 
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+ 
+/* ---------- load motion ---------- */
+@media (prefers-reduced-motion:no-preference){
+  .reveal{opacity:0;transform:translateY(9px);animation:rise .62s cubic-bezier(.22,.7,.3,1) forwards}
+  .reveal:nth-child(2){animation-delay:.07s}
+  .reveal:nth-child(3){animation-delay:.14s}
+  .reveal:nth-child(4){animation-delay:.2s}
+  @keyframes rise{to{opacity:1;transform:none}}
+}
+ 
+/* ---------- responsive ---------- */
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .col-side{border-left:0;border-top:1px solid var(--rule)}
+  .ledger{grid-template-columns:repeat(2,1fr)}
+  .metric{border-top:1px solid rgba(11,107,98,.16)}
+  .metric:nth-child(odd){border-left:0}
+  .metric:nth-child(-n+2){border-top:0}
+  .metric:last-child{grid-column:1/-1;border-left:0}
+}
+@media (max-width:520px){
+  body{font-size:14.5px}
+  .contact{gap:6px 16px;font-size:11.5px}
+}
+ 
+/* ---------- print: locked to one A4 page ---------- */
+@media print{
+  @page{size:A4;margin:9mm 10mm}
+  html,body{background:#fff}
+  body{padding:0;font-size:8.7pt;line-height:1.34;color:#000;font-family:var(--body)}
+  .utility{display:none}
+  .sheet{border:0;max-width:none;border-radius:0}
+  .pad{padding:0}
+ 
+  .masthead{border-bottom:.7pt solid #000;padding-bottom:7pt;margin-bottom:7pt}
+  .eyebrow{font-size:6.8pt;letter-spacing:.15em;margin-bottom:4pt;color:#000}
+  h1{font-size:23pt;line-height:.9}
+  h1 br{display:none}
+  h1 .surname{color:#555;margin-left:.22em}
+  .tagline{font-size:8.6pt;margin-top:4pt;max-width:none;color:#333}
+  .contact{margin-top:5pt;font-size:7.5pt;gap:2pt 12pt}
+  .contact a{border:0;color:#000}
+ 
+  .ledger{background:#fff;border-bottom:.5pt solid #BBB;padding:0 0 6pt;margin-bottom:7pt;grid-template-columns:repeat(5,1fr)}
+  .metric{padding:0 8pt;border-left:.5pt solid #CCC;border-top:0}
+  .metric:first-child{padding-left:0;border-left:0}
+  .metric b{font-size:11.5pt;color:#000;line-height:1}
+  .metric small{font-size:6pt;margin-top:2pt;color:#555;opacity:1;letter-spacing:.05em}
+ 
+  .standfirst{border-bottom:.5pt solid #BBB;padding-bottom:7pt;margin-bottom:8pt}
+  .standfirst p{font-size:9pt;line-height:1.36;max-width:none;color:#111}
+  .standfirst p + p{margin-top:3pt}
+  .standfirst em{color:#000;font-style:italic}
+ 
+  .grid{display:block}
+  .col-main{padding:0}
+  .col-side{padding:8pt 0 0;background:#fff;border-left:0;border-top:.5pt solid #BBB;margin-top:9pt;
+            display:grid;grid-template-columns:1.5fr 1fr .8fr;gap:0 18pt;align-items:start}
+  .col-side .block + .block{margin-top:0}
+ 
+  h2{font-size:7.4pt;letter-spacing:.17em;margin-bottom:6pt;padding-bottom:3pt;border-bottom:.7pt solid #000;color:#333}
+  .block + .block{margin-top:9pt}
+ 
+  .entry{break-inside:avoid;page-break-inside:avoid}
+  .entry + .entry{margin-top:7pt;padding-top:7pt;border-top:.5pt solid #DDD}
+  .entry-head{gap:1pt 12pt}
+  .org{font-size:10.6pt;line-height:1.1}
+  .role{font-size:8.8pt;color:#000;margin-top:1pt;font-weight:600}
+  .org-note{font-size:7.6pt;color:#666;margin-top:1pt}
+  .dates{font-size:7.6pt;color:#555}
+ 
+  ul.points{margin-top:4pt}
+  ul.points li{font-size:8.6pt;color:#111;padding-left:10pt;line-height:1.33}
+  ul.points li + li{margin-top:2.6pt}
+  ul.points li::before{background:#000;width:5pt;top:.6em}
+  ul.points strong{font-weight:600}
+ 
+  .skill-group + .skill-group{margin-top:5pt}
+  .skill-label{font-size:6.6pt;color:#000;margin-bottom:2pt;letter-spacing:.1em}
+  .skill-group p{font-size:8pt;line-height:1.3}
+  .edu strong{font-size:9pt}
+  .edu span{font-size:8pt;margin-top:1pt}
+  .edu .honour{margin-top:4pt;padding-top:4pt;font-size:7.8pt;border-color:#CCC}
+  .edu .honour b{color:#000}
+  .side-links li + li{margin-top:2.5pt}
+  .side-links a{border:0;font-size:7.8pt;color:#000}
+ 
+  .reveal{opacity:1;transform:none;animation:none}
+}
+</style>
+</head>
+<body>
+ 
+<div class="utility">
+  <button class="print-btn" onclick="window.print()">Save as PDF</button>
+</div>
+ 
+<main class="sheet">
+ 
+  <header class="masthead pad reveal">
+    <span class="eyebrow">Associate Product Manager &middot; Product Analyst</span>
+    <h1>Suraj<br><span class="surname">Mishra</span></h1>
+    <p class="tagline">Operator turned product manager. I build from evidence, ship what's testable, and measure whether it worked.</p>
+    <div class="contact">
+      <span>Bengaluru, India</span>
+      <a href="tel:+918957939183">+91&nbsp;89579&nbsp;39183</a>
+      <a href="mailto:surajmm000@gmail.com">surajmm000@gmail.com</a>
+      <a href="https://linkedin.com/in/surajmishra-286s" target="_blank" rel="noopener">linkedin.com/in/surajmishra-286s</a>
+      <a href="https://game-match-spot.lovable.app" target="_blank" rel="noopener">game-match-spot.lovable.app</a>
+    </div>
+  </header>
+ 
+  <section class="ledger reveal" aria-label="Key figures">
+    <div class="metric"><b>~285</b><small>Students, from 3</small></div>
+    <div class="metric"><b>3</b><small>Locations, from 1</small></div>
+    <div class="metric"><b>12 mo</b><small>To scale it</small></div>
+    <div class="metric"><b>2</b><small>End-to-end case studies</small></div>
+    <div class="metric"><b>9</b><small>Screen prototype shipped</small></div>
+  </section>
+ 
+  <section class="standfirst pad reveal">
+    <p>Product-focused BBA graduate who scaled a service business from 3 to ~285 customers across 3 locations in 12 months, and has applied that same execution instinct to structured product work — two end-to-end case studies in user research, PRD writing, and prototyping through HelloPM's PM fellowship — alongside hands-on AI fluency work through FlyRank.</p>
+    <p>Brings a grounded instinct for the mass-market Indian user: pricing sensitivity, trust, and the gap between what products promise and what users experience. <em>Targeting Associate Product Manager and Product Analyst roles at India's AI-native and consumer tech companies.</em></p>
+  </section>
+ 
+  <div class="grid reveal">
+ 
+    <div class="col-main">
+ 
+      <section class="block">
+        <h2>Experience</h2>
+ 
+        <article class="entry">
+          <div class="entry-head">
+            <div>
+              <div class="org">HelloPM</div>
+              <div class="role">Product Management Fellow</div>
+              <div class="org-note">Structured product management fellowship program &middot; Bengaluru, Remote</div>
+            </div>
+            <div class="dates">Mar 2026 — Present</div>
+          </div>
+          <ul class="points">
+            <li>Led primary research for <strong>Playo</strong> (sports-court booking platform) as an independent case study — 5 in-person interviews plus a 13-response survey — then scored problems on population, intensity, and frequency to isolate the P0: a <strong>4–6 hour host-approval wait</strong> with no communication or cost transparency, identified as a likely driver of mid-wait abandonment and reduced repeat bookings.</li>
+            <li>Wrote a PRD scoping an MVP of 5 features (response-time SLA, quick-reply templates, mandatory price transparency, in-app chat, host responsiveness rating) against an OKR targeting a <strong>40% lift in join-completion rate</strong>, then designed and built a 9-screen clickable prototype in Lovable across both player and host flows.</li>
+            <li>Scored 3 alternative solutions via <strong>RICE</strong> and parked 2 on the roadmap for future phases; defined a launch metrics framework — 1 key metric, 2 secondary, 1 guardrail — to validate whether the fix actually worked post-launch.</li>
+            <li>Identified a recurring AI transparency failure in ChatGPT through direct use; validated the problem via a 5-person survey and a follow-up user interview before scoping <strong>"Clear Next Step,"</strong> a two-checkpoint confirmation feature.</li>
+            <li>Took the feature from problem statement through PRD to a working, testable prototype in Google AI Studio, defining success criteria throughout.</li>
+          </ul>
+        </article>
+ 
+        <article class="entry">
+          <div class="entry-head">
+            <div>
+              <div class="org">FlyRank</div>
+              <div class="role">AI Intern — Machine Learning &amp; UI/UX Design Tracks</div>
+              <div class="org-note">FlyRank Corp, a 10x.ai company &middot; Remote</div>
+            </div>
+            <div class="dates">2026 — Present</div>
+          </div>
+          <ul class="points">
+            <li>Currently working through FlyRank's self-paced AI Internship (Claude Partner Network) across Machine Learning and UI/UX Design tracks, building applied fluency in <strong>prompt engineering, LLM evaluation, and AI-assisted workflows</strong>.</li>
+          </ul>
+        </article>
+ 
+      </section>
+ 
+      <section class="block">
+        <h2>Additional Experience</h2>
+ 
+        <article class="entry">
+          <div class="entry-head">
+            <div>
+              <div class="org">White Feather Sports Arena</div>
+              <div class="role">Co-Founder — Operations &amp; Coaching</div>
+              <div class="org-note">Profit-Sharing Partnership &middot; Bengaluru, India</div>
+            </div>
+            <div class="dates">2022 — 2024</div>
+          </div>
+          <ul class="points">
+            <li>Co-founded and scaled the academy on a profit-sharing partnership model — managing co-founder, staff, and parent stakeholders — from 1 location and 3 students to <strong>3 locations with ~285 students and a 6-person team within 12 months</strong> (~95x, or ~9,400%, enrollment growth).</li>
+            <li>Launched an Adult (35+) batch after parents and players requested corporate/amateur tournament training — an unmet need outside the original youth program — then iterated coaching methodology and adjusted batch scheduling around school hours based on ongoing parent feedback.</li>
+            <li>Coach Under-11 through Under-17 and Adult (35+) batches; developed 4–5 complete beginners into <strong>state-ranked (Top 5)</strong> competitors across Under-13, Under-15, and adult categories.</li>
+          </ul>
+        </article>
+ 
+      </section>
+ 
+    </div>
+ 
+    <aside class="col-side">
+ 
+      <section class="block">
+        <h2>Skills</h2>
+        <div class="skill-group">
+          <div class="skill-label">Product</div>
+          <p>User Research · PRD Writing · Prototyping (Lovable, Google AI Studio) · Wireframing · Product Strategy · Competitive Analysis</p>
+        </div>
+        <div class="skill-group">
+          <div class="skill-label">Analytical</div>
+          <p>Excel · <em>Currently building:</em> SQL</p>
+        </div>
+        <div class="skill-group">
+          <div class="skill-label">Tools</div>
+          <p>Google Workspace (Docs, Sheets, Gmail, Chrome)</p>
+        </div>
+      </section>
+ 
+      <section class="block edu">
+        <h2>Education</h2>
+        <strong>Surana College</strong>
+        <span>Bachelor of Business Administration (BBA)</span>
+        <span>Bengaluru</span>
+        <p class="honour"><b>Merit scholarship recipient</b> — 1 of 100 students</p>
+      </section>
+ 
+      <section class="block">
+        <h2>Links</h2>
+        <ul class="side-links">
+          <li><a href="https://game-match-spot.lovable.app" target="_blank" rel="noopener">Playo prototype ↗</a></li>
+          <li><a href="https://linkedin.com/in/surajmishra-286s" target="_blank" rel="noopener">LinkedIn ↗</a></li>
+          <li><a href="mailto:surajmm000@gmail.com">Email ↗</a></li>
+        </ul>
+      </section>
+ 
+    </aside>
+ 
+  </div>
+ 
+</main>
+ 
+</body>
+</html>
