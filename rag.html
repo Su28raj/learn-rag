@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAG Simulator — see every step</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --court:#0C4632;
+  --court-2:#10583E;
+  --court-line:rgba(255,255,255,.62);
+  --paper:#F1F4F1;
+  --card:#FFFFFF;
+  --ink:#0E1F18;
+  --ink-2:#4A5C54;
+  --ink-3:#7B8C84;
+  --rule:#D5DED8;
+  --shuttle:#D6402A;
+  --shuttle-soft:#FBEBE7;
+  --hit:#199B62;
+  --hit-soft:#E4F4EC;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Inter Tight",system-ui,-apple-system,sans-serif;
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:"Archivo",system-ui,sans-serif;font-weight:600;line-height:1.15;margin:0}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+ 
+/* ---------- shell ---------- */
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px 80px}
+ 
+header.hero{
+  background:var(--court);
+  color:#EAF3EE;
+  padding:44px 0 40px;
+  margin-bottom:28px;
+  position:relative;
+  overflow:hidden;
+}
+header.hero::after{
+  content:"";position:absolute;inset:0;
+  background-image:linear-gradient(var(--court-line) .5px,transparent .5px),linear-gradient(90deg,var(--court-line) .5px,transparent .5px);
+  background-size:52px 52px;opacity:.07;pointer-events:none;
+}
+.hero-inner{max-width:1240px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+.eyebrow{
+  font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;color:#7FC7A5;margin-bottom:14px;
+}
+header.hero h1{font-size:clamp(30px,4.4vw,50px);letter-spacing:-.02em;max-width:16ch}
+header.hero h1 em{font-style:normal;color:#7FC7A5}
+.hero-sub{margin-top:14px;max-width:56ch;color:#B9D3C6;font-size:16px}
+ 
+/* ---------- stage rail ---------- */
+.rail{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:24px;scrollbar-width:thin}
+.rail button{
+  flex:0 0 auto;display:flex;align-items:center;gap:9px;
+  background:transparent;border:1px solid var(--rule);border-radius:999px;
+  padding:7px 15px 7px 9px;cursor:pointer;color:var(--ink-2);
+  font-family:"Inter Tight",sans-serif;font-size:13.5px;font-weight:500;
+  transition:background .18s,border-color .18s,color .18s;
+}
+.rail button:hover{border-color:var(--ink-3);color:var(--ink)}
+.rail button .num{
+  font-family:"JetBrains Mono",monospace;font-size:10.5px;
+  width:20px;height:20px;border-radius:50%;background:var(--rule);color:var(--ink-2);
+  display:grid;place-items:center;transition:background .18s,color .18s;
+}
+.rail button[aria-selected="true"]{background:var(--court);border-color:var(--court);color:#fff}
+.rail button[aria-selected="true"] .num{background:#7FC7A5;color:var(--court)}
+ 
+/* ---------- layout ---------- */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 452px;gap:26px;align-items:start}
+@media(max-width:1040px){.grid{grid-template-columns:1fr}}
+ 
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:var(--radius);padding:22px 22px 24px}
+.panel + .panel{margin-top:18px}
+.panel h2{font-size:20px;letter-spacing:-.01em}
+.panel .lede{color:var(--ink-2);margin:9px 0 20px;max-width:60ch;font-size:14.5px}
+.side{position:sticky;top:20px}
+@media(max-width:1040px){.side{position:static}}
+ 
+.stage{display:none}
+.stage.on{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+ 
+/* ---------- controls ---------- */
+label.fld{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px}
+textarea,input[type=text]{
+  width:100%;font-family:"Inter Tight",sans-serif;font-size:14.5px;color:var(--ink);
+  background:#FBFCFB;border:1px solid var(--rule);border-radius:8px;padding:11px 13px;resize:vertical;
+}
+textarea:focus,input[type=text]:focus{outline:2px solid var(--hit);outline-offset:1px;border-color:transparent}
+.slider-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.slider-row label{flex:0 0 auto;font-size:13px;font-weight:500;color:var(--ink-2);min-width:132px}
+.slider-row input[type=range]{flex:1;min-width:130px;accent-color:var(--hit)}
+.slider-row output{font-family:"JetBrains Mono",monospace;font-size:12.5px;min-width:62px;text-align:right;color:var(--ink)}
+ 
+.btn{
+  font-family:"Inter Tight",sans-serif;font-size:14px;font-weight:600;cursor:pointer;
+  border-radius:8px;padding:10px 17px;border:1px solid var(--court);
+  background:var(--court);color:#fff;transition:opacity .16s;
+}
+.btn:hover{opacity:.88}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
+.btn.ghost:hover{border-color:var(--ink-3)}
+.btn.sm{font-size:12.5px;padding:6px 11px}
+.btn-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+:focus-visible{outline:2px solid var(--hit);outline-offset:2px}
+ 
+/* ---------- docs ---------- */
+.doc{border:1px solid var(--rule);border-radius:8px;padding:13px 14px;margin-bottom:10px;background:#FBFCFB}
+.doc-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.doc-title{font-weight:600;font-size:14px}
+.doc-body{font-size:13.5px;color:var(--ink-2);line-height:1.55}
+.x{background:none;border:none;color:var(--ink-3);cursor:pointer;font-size:17px;line-height:1;padding:2px 5px;border-radius:5px}
+.x:hover{color:var(--shuttle);background:var(--shuttle-soft)}
+ 
+/* ---------- chunks ---------- */
+.chunk{border:1px solid var(--rule);border-left:3px solid var(--rule);border-radius:0 8px 8px 0;padding:11px 13px;margin-bottom:9px;background:#FBFCFB}
+.chunk.hit{border-left-color:var(--hit);background:var(--hit-soft)}
+.chunk-meta{display:flex;gap:10px;align-items:center;margin-bottom:5px;flex-wrap:wrap}
+.tag{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+.tag.score{color:var(--hit);font-weight:500}
+.chunk-text{font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+ 
+/* ---------- vector bars ---------- */
+.dims{display:grid;gap:5px;margin-top:9px}
+.dim{display:grid;grid-template-columns:112px 1fr 40px;align-items:center;gap:9px}
+.dim span:first-child{font-size:11.5px;color:var(--ink-3)}
+.bar{height:7px;background:var(--rule);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--hit);border-radius:4px;transition:width .45s cubic-bezier(.2,.8,.2,1)}
+.bar.q i{background:var(--shuttle)}
+.dim .mono{font-size:11px;text-align:right;color:var(--ink-3)}
+ 
+/* ---------- court ---------- */
+.court-card{background:var(--court);border-radius:var(--radius);padding:18px 18px 14px;color:#DCEBE3}
+.court-card h3{font-size:15px;color:#fff;font-family:"Archivo",sans-serif;font-weight:600}
+.court-card p.hint{font-size:12.5px;color:#8FBFA8;margin:5px 0 12px}
+svg.court{display:block;width:100%;height:auto}
+.dot{transition:r .4s cubic-bezier(.2,.8,.2,1),opacity .4s,fill .3s;cursor:pointer}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:11px;font-size:11.5px;color:#8FBFA8}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+ 
+/* ---------- prompt block ---------- */
+pre.prompt{
+  font-family:"JetBrains Mono",monospace;font-size:12.2px;line-height:1.7;
+  background:#0E1F18;color:#CFE3D9;border-radius:8px;padding:16px 17px;
+  overflow-x:auto;white-space:pre-wrap;word-break:break-word;margin:0;
+}
+pre.prompt b{color:#7FC7A5;font-weight:500}
+pre.prompt .ret{color:#F0B49C}
+ 
+/* ---------- callouts ---------- */
+.note{border-left:3px solid var(--hit);background:var(--hit-soft);padding:11px 14px;border-radius:0 8px 8px 0;font-size:13.5px;color:var(--ink-2);margin-top:16px}
+.note.warn{border-left-color:var(--shuttle);background:var(--shuttle-soft)}
+.note strong{color:var(--ink)}
+ 
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin-top:16px}
+.stat{border:1px solid var(--rule);border-radius:8px;padding:11px 13px;background:#FBFCFB}
+.stat .k{font-family:"JetBrains Mono",monospace;font-size:19px;color:var(--ink);display:block;line-height:1.3}
+.stat .l{font-size:11.5px;color:var(--ink-3);letter-spacing:.03em}
+ 
+.answer{border:1px solid var(--rule);border-radius:8px;padding:16px 17px;background:#FBFCFB;font-size:14.5px;line-height:1.65}
+.answer sup{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--hit);font-weight:500}
+.empty{color:var(--ink-3);font-size:13.5px;font-style:normal;padding:14px 0}
+ 
+.presets{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.presets button{
+  font-size:12.5px;padding:6px 11px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--rule);background:#FBFCFB;color:var(--ink-2);font-family:"Inter Tight",sans-serif;
+}
+.presets button:hover{border-color:var(--hit);color:var(--hit)}
+ 
+footer.foot{margin-top:34px;padding-top:20px;border-top:1px solid var(--rule);font-size:13px;color:var(--ink-3);max-width:74ch}
+footer.foot strong{color:var(--ink-2)}
+ 
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+ 
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Retrieval-augmented generation</div>
+    <h1>Watch the system <em>choose what to paste.</em></h1>
+    <p class="hero-sub">Every stage below is live. Change a chunk size, move a threshold, ask a different question — the retrieval recomputes and the map redraws. Nothing here is pre-recorded.</p>
+  </div>
+</header>
+ 
+<div class="wrap">
+  <div class="rail" role="tablist" aria-label="Pipeline stages">
+    <button role="tab" data-go="1" aria-selected="true"><span class="num">1</span>Sources</button>
+    <button role="tab" data-go="2" aria-selected="false"><span class="num">2</span>Chunk</button>
+    <button role="tab" data-go="3" aria-selected="false"><span class="num">3</span>Embed</button>
+    <button role="tab" data-go="4" aria-selected="false"><span class="num">4</span>Ask</button>
+    <button role="tab" data-go="5" aria-selected="false"><span class="num">5</span>Retrieve</button>
+    <button role="tab" data-go="6" aria-selected="false"><span class="num">6</span>Prompt &amp; answer</button>
+  </div>
+ 
+  <div class="grid">
+    <div>
+ 
+      <!-- 1 -->
+      <section class="panel stage on" id="s1">
+        <h2>1 — Your sources</h2>
+        <p class="lede">The knowledge base. The model knows nothing about any of this until a chunk from here lands in a prompt. Delete a source and that knowledge disappears instantly — no retraining.</p>
+        <div id="docList"></div>
+        <div style="margin-top:16px">
+          <label class="fld" for="dTitle">Add a source</label>
+          <input type="text" id="dTitle" placeholder="Title — e.g. Aarav — session notes">
+          <textarea id="dBody" rows="3" placeholder="Paste the text of the document…" style="margin-top:8px"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="addDoc">Add source</button>
+          <button class="btn ghost" id="resetDocs">Restore samples</button>
+          <button class="btn ghost" data-go="2">Next — chunk</button>
+        </div>
+      </section>
+ 
+      <!-- 2 -->
+      <section class="panel stage" id="s2">
+        <h2>2 — Chunking</h2>
+        <p class="lede">Documents get cut into pieces, because you retrieve pieces, not whole files. Chunk size is a real product trade-off: too small and a chunk loses the context that made it meaningful, too large and you drag noise into the prompt.</p>
+        <div class="slider-row">
+          <label for="cs">Target chunk size</label>
+          <input type="range" id="cs" min="80" max="600" step="20" value="240">
+          <output id="csOut">240 chars</output>
+        </div>
+        <div class="stats" id="chunkStats"></div>
+        <div style="margin-top:18px" id="chunkList"></div>
+        <div class="note"><strong>Try this:</strong> drag the slider to 80, then jump to stage 5 and look at what gets retrieved. Then try 600. Same question, different answer quality — and you never touched the model.</div>
+        <div class="btn-row"><button class="btn ghost" data-go="3">Next — embed</button></div>
+      </section>
+ 
+      <!-- 3 -->
+      <section class="panel stage" id="s3">
+        <h2>3 — Embedding</h2>
+        <p class="lede">Each chunk becomes a list of numbers — a position on a map of meaning. This happens once, ahead of time, for every chunk. At question time nothing here is re-read.</p>
+        <div class="note warn"><strong>Honesty note:</strong> a real embedding model produces ~1,536 dimensions that nobody can name, learned from enormous amounts of text. This simulator uses 8 hand-defined badminton concepts so you can actually see the numbers. The mechanism — text becomes a vector, vectors get compared by angle — is identical.</div>
+        <div style="margin-top:18px" id="embedList"></div>
+        <div class="btn-row"><button class="btn ghost" data-go="4">Next — ask</button></div>
+      </section>
+ 
+      <!-- 4 -->
+      <section class="panel stage" id="s4">
+        <h2>4 — The question</h2>
+        <p class="lede">Only the question gets converted now. Everything else was positioned days ago. This is why retrieval across millions of chunks returns in under a second — it isn't reading, it's comparing coordinates.</p>
+        <label class="fld" for="q">Ask the academy's notes</label>
+        <input type="text" id="q" placeholder="e.g. how is Aarav's net play coming along?">
+        <div class="presets" id="presets"></div>
+        <div id="qVec" style="margin-top:20px"></div>
+        <div class="btn-row"><button class="btn ghost" data-go="5">Next — retrieve</button></div>
+      </section>
+ 
+      <!-- 5 -->
+      <section class="panel stage" id="s5">
+        <h2>5 — Retrieval</h2>
+        <p class="lede">Distance is measured from the question to every chunk. The closest few win. Two knobs here are pure product decisions, not engineering ones.</p>
+        <div class="slider-row">
+          <label for="k">Chunks to retrieve</label>
+          <input type="range" id="k" min="1" max="8" step="1" value="3">
+          <output id="kOut">3</output>
+        </div>
+        <div class="slider-row">
+          <label for="th">Relevance floor</label>
+          <input type="range" id="th" min="0" max="0.8" step="0.05" value="0.15">
+          <output id="thOut">0.15</output>
+        </div>
+        <div class="note"><strong>The floor is the whole design decision.</strong> Below it, a chunk is discarded even if it was the closest one available. Raise it and the system starts saying "I don't know." Lower it to zero and it will always find something to say — confidently, and sometimes about the wrong player. That's the NotebookLM choice, in one slider.</div>
+        <div style="margin-top:18px" id="results"></div>
+        <div class="btn-row"><button class="btn ghost" data-go="6">Next — prompt</button></div>
+      </section>
+ 
+      <!-- 6 -->
+      <section class="panel stage" id="s6">
+        <h2>6 — The assembled prompt</h2>
+        <p class="lede">This is the entire point of RAG. Not a clever technique — just this string, built automatically, a moment before the model sees it.</p>
+        <pre class="prompt" id="promptOut"></pre>
+        <div class="stats" id="costStats"></div>
+        <h3 style="font-size:15px;margin-top:24px">What comes back</h3>
+        <p class="lede" style="margin:8px 0 12px">A stand-in, stitched from the retrieved text — this file calls no model. A real LLM would rewrite this into prose, and could still drift from the sources, which is the second failure mode.</p>
+        <div class="answer" id="answerOut"></div>
+        <div class="note warn" id="failNote" style="display:none"></div>
+      </section>
+ 
+    </div>
+ 
+    <!-- court map -->
+    <aside class="side">
+      <div class="court-card">
+        <h3>Meaning space</h3>
+        <p class="hint">Every chunk placed by what it's about. Nearby means similar. The court is just a frame — the axes have no human name.</p>
+        <svg class="court" viewBox="0 0 420 236" role="img" aria-labelledby="courtTitle">
+          <title id="courtTitle">Chunks plotted by meaning, with retrieved chunks highlighted</title>
+          <rect x="0" y="0" width="420" height="236" fill="#0C4632"/>
+          <g stroke="rgba(255,255,255,.5)" stroke-width="1" fill="none">
+            <rect x="26" y="20" width="368" height="196"/>
+            <line x1="26" y1="42" x2="394" y2="42"/>
+            <line x1="26" y1="194" x2="394" y2="194"/>
+            <line x1="210" y1="20" x2="210" y2="216"/>
+            <line x1="100" y1="20" x2="100" y2="216"/>
+            <line x1="320" y1="20" x2="320" y2="216"/>
+            <line x1="26" y1="118" x2="100" y2="118"/>
+            <line x1="320" y1="118" x2="394" y2="118"/>
+          </g>
+          <line x1="210" y1="8" x2="210" y2="228" stroke="rgba(255,255,255,.85)" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <circle id="halo" cx="210" cy="118" r="0" fill="none" stroke="#D6402A" stroke-width="1.2" stroke-dasharray="5 4" opacity="0"/>
+          <g id="dots"></g>
+          <g id="qdot"></g>
+        </svg>
+        <div class="legend">
+          <span><i style="background:#8FBFA8"></i>Chunk</span>
+          <span><i style="background:#199B62"></i>Retrieved</span>
+          <span><i style="background:#D6402A"></i>Question</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+ 
+  <footer class="foot">
+    <strong>What's real here:</strong> the chunking, the vectors, the cosine similarity, the ranking, and the assembled prompt. <strong>What's simulated:</strong> the 8 named dimensions stand in for a learned embedding model, and the final answer is stitched rather than generated. Everything a PM makes decisions about is in the real half.
+  </footer>
+</div>
+ 
+<script>
+"use strict";
+ 
+const DIMS = [
+  {name:"net play",   terms:["net","drop","tumble","spin","netplay","front court","kill","dribble"]},
+  {name:"rear court", terms:["smash","clear","jump","overhead","rear","power","drive","attack"]},
+  {name:"footwork",   terms:["footwork","movement","split step","lunge","agility","speed","court coverage","recovery"]},
+  {name:"fitness",    terms:["stamina","endurance","strength","conditioning","fitness","gym","cardio","fatigue"]},
+  {name:"injury",     terms:["injury","pain","shoulder","knee","ankle","physio","rehab","sore","strain"]},
+  {name:"scheduling", terms:["batch","timing","schedule","fee","payment","slot","booking","attendance","enrol"]},
+  {name:"match play", terms:["match","tournament","nerves","confidence","pressure","focus","score","rally","opponent"]},
+  {name:"equipment",  terms:["racket","string","tension","grip","shuttle","shoe","gear","bag"]}
+];
+ 
+const SAMPLES = [
+  {t:"Aarav — session notes, term 3", b:"Aarav has improved his net play noticeably this term. His tumble at the front court is now consistent under slow feeds, though he still lifts too often when rushed. The drop shot from mid court remains flat. Footwork into the front left corner is his weakest movement; the lunge recovery is slow and he ends up stranded. We have started split step drills twice a week to fix the recovery speed."},
+  {t:"Aarav — match report vs Hosur", b:"Aarav lost 21-18, 19-21, 21-15 in the district round. He handled pressure well in the first game but his confidence dropped after a long rally at 15-all in the third. His smash was heavily used but landed shallow late in the match, suggesting fatigue rather than technique. Opponent exploited the front court repeatedly."},
+  {t:"Meera — session notes", b:"Meera has strong rear court power and a fast jump smash for her age. Her clear is deep and consistent. She avoids the net entirely and needs front court work. Stamina is the main gap — she fades badly after twenty minutes of continuous rally practice, so conditioning has been added on Thursdays."},
+  {t:"Injury log — shoulder cases", b:"Three players reported shoulder pain this term, all from the morning adult batch. The common factor was overhead smash volume without warm up. Standard protocol is rest for one week, then physio-guided rotator cuff strengthening before returning to overhead work. Do not clear any player for smash practice while pain persists during a slow clear."},
+  {t:"Academy operations — batches and fees", b:"The junior batch runs 5pm to 7pm on weekdays with up to fourteen players. The adult batch runs 6am to 8am and is billed as individual sessions. Monthly fee for the junior batch is 2800 rupees, payable in the first week. Court booking for extra slots is charged separately at 300 rupees per hour."}
+];
+ 
+const PRESETS = [
+  "How is Aarav's net play coming along?",
+  "Who needs work on stamina and conditioning?",
+  "What do we do when a player's shoulder hurts?",
+  "What does the junior batch cost per month?",
+  "Which shuttle brand should we buy?"
+];
+ 
+const S = {
+  docs: SAMPLES.map(d=>({...d})),
+  chunkSize: 240,
+  question: "",
+  k: 3,
+  floor: 0.15,
+  chunks: [],
+  ranked: [],
+  kept: []
+};
+ 
+/* ---------- vector maths ---------- */
+function embed(text){
+  const s = " " + text.toLowerCase().replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ") + " ";
+  const v = DIMS.map(d => d.terms.reduce((n,t)=> n + (s.split(" "+t+" ").length-1) + (t.includes(" ") ? (s.split(t).length-1) : 0), 0));
+  const mag = Math.hypot(...v);
+  return mag === 0 ? v.map(()=>0) : v.map(x=>x/mag);
+}
+function cosine(a,b){
+  let d = 0;
+  for (let i=0;i<a.length;i++) d += a[i]*b[i];
+  return d;
+}
+ 
+/* ---------- chunking ---------- */
+function chunkAll(){
+  const out = [];
+  S.docs.forEach((doc, di) => {
+    const sentences = doc.b.split(/(?<=[.!?])\s+/).filter(x=>x.trim());
+    let buf = "";
+    const push = () => {
+      if (!buf.trim()) return;
+      out.push({ id: out.length+1, doc: doc.t, docIndex: di, text: buf.trim(), vec: embed(buf) });
+      buf = "";
+    };
+    sentences.forEach(sn => {
+      if (buf && (buf.length + sn.length) > S.chunkSize) push();
+      buf += (buf ? " " : "") + sn;
+    });
+    push();
+  });
+  S.chunks = out;
+}
+ 
+/* ---------- retrieval ---------- */
+function retrieve(){
+  if (!S.question.trim()){ S.ranked = []; S.kept = []; return; }
+  const qv = embed(S.question);
+  S.ranked = S.chunks.map(c => ({...c, score: cosine(qv, c.vec)})).sort((a,b)=>b.score-a.score);
+  S.kept = S.ranked.slice(0, S.k).filter(c => c.score >= S.floor);
+}
+ 
+/* ---------- 2D projection ---------- */
+const AX = [ .92,-.68, .38,-.22,-.55, .61,-.30, .18];
+const AY = [-.31, .48,-.62, .71, .24,-.42, .79,-.51];
+function project(v){ return [cosine(v,AX), cosine(v,AY)]; }
+ 
+/* ---------- rendering ---------- */
+const $ = id => document.getElementById(id);
+const esc = t => t.replace(/[&<>]/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
+ 
+function renderDocs(){
+  $("docList").innerHTML = S.docs.length ? S.docs.map((d,i)=>`
+    <div class="doc">
+      <div class="doc-head">
+        <span class="doc-title">${esc(d.t)}</span>
+        <button class="x" data-del="${i}" aria-label="Remove ${esc(d.t)}">&times;</button>
+      </div>
+      <div class="doc-body">${esc(d.b.slice(0,190))}${d.b.length>190?"…":""}</div>
+    </div>`).join("")
+    : `<p class="empty">No sources. The system has nothing to retrieve from — every question will fail the relevance floor. Add one below.</p>`;
+}
+ 
+function renderChunks(){
+  const avg = S.chunks.length ? Math.round(S.chunks.reduce((n,c)=>n+c.text.length,0)/S.chunks.length) : 0;
+  $("chunkStats").innerHTML = `
+    <div class="stat"><span class="k">${S.docs.length}</span><span class="l">sources</span></div>
+    <div class="stat"><span class="k">${S.chunks.length}</span><span class="l">chunks</span></div>
+    <div class="stat"><span class="k">${avg}</span><span class="l">avg chars</span></div>`;
+  $("chunkList").innerHTML = S.chunks.map(c=>`
+    <div class="chunk" data-cid="${c.id}">
+      <div class="chunk-meta"><span class="tag">chunk ${String(c.id).padStart(2,"0")}</span><span class="tag">${esc(c.doc)}</span><span class="tag">${c.text.length} ch</span></div>
+      <div class="chunk-text">${esc(c.text)}</div>
+    </div>`).join("") || `<p class="empty">Nothing to chunk yet.</p>`;
+}
+ 
+function bars(vec, isQ){
+  return `<div class="dims">` + DIMS.map((d,i)=>`
+    <div class="dim">
+      <span>${d.name}</span>
+      <span class="bar${isQ?" q":""}"><i style="width:${Math.round(vec[i]*100)}%"></i></span>
+      <span class="mono">${vec[i].toFixed(2)}</span>
+    </div>`).join("") + `</div>`;
+}
+ 
+function renderEmbed(){
+  $("embedList").innerHTML = S.chunks.slice(0,4).map(c=>`
+    <div class="chunk">
+      <div class="chunk-meta"><span class="tag">chunk ${String(c.id).padStart(2,"0")}</span><span class="tag">${esc(c.doc)}</span></div>
+      <div class="chunk-text">${esc(c.text.slice(0,130))}${c.text.length>130?"…":""}</div>
+      ${bars(c.vec,false)}
+    </div>`).join("") + (S.chunks.length>4 ? `<p class="empty">…and ${S.chunks.length-4} more, all embedded the same way.</p>` : "");
+}
+ 
+function renderQuestion(){
+  if (!S.question.trim()){ $("qVec").innerHTML = `<p class="empty">Type a question above to see it become a vector.</p>`; return; }
+  const qv = embed(S.question);
+  const dead = qv.every(x=>x===0);
+  $("qVec").innerHTML = `<label class="fld">The question as a vector</label>${bars(qv,true)}` +
+    (dead ? `<div class="note warn"><strong>Zero vector.</strong> No word in this question touched any known concept, so it has no position on the map. Real embedding models never do this — they place every string somewhere — but the effect is the same: retrieval returns noise.</div>` : "");
+}
+ 
+function renderResults(){
+  if (!S.question.trim()){ $("results").innerHTML = `<p class="empty">No question yet. Go to stage 4.</p>`; return; }
+  const shown = S.ranked.slice(0, S.k);
+  const cut = shown.filter(c=>c.score < S.floor).length;
+  $("results").innerHTML = shown.map((c,i)=>{
+    const keep = c.score >= S.floor;
+    return `<div class="chunk${keep?" hit":""}">
+      <div class="chunk-meta">
+        <span class="tag">rank ${i+1}</span>
+        <span class="tag score">${c.score.toFixed(3)}</span>
+        <span class="tag">${esc(c.doc)}</span>
+        ${keep?"":`<span class="tag" style="color:#D6402A">below floor — dropped</span>`}
+      </div>
+      <div class="chunk-text">${esc(c.text)}</div>
+    </div>`;
+  }).join("") + (cut ? `<div class="note warn"><strong>${cut} chunk${cut>1?"s":""} dropped.</strong> The search found them, they were the closest available, and the system threw them away rather than answer from weak material.</div>` : "");
+}
+ 
+function buildPrompt(){
+  if (!S.kept.length){
+    return `<b>System:</b> Answer only from the context below. If the answer is not there, say you don't know.\n\n<b>Context:</b>\n<span class="ret">(empty — nothing cleared the relevance floor)</span>\n\n<b>Question:</b> ${esc(S.question||"—")}`;
+  }
+  const ctx = S.kept.map((c,i)=>`<span class="ret">[${i+1}] ${esc(c.text)}\n    — source: ${esc(c.doc)}</span>`).join("\n\n");
+  return `<b>System:</b> Answer only from the context below. Cite sources by number. If the answer is not there, say you don't know.\n\n<b>Context:</b>\n${ctx}\n\n<b>Question:</b> ${esc(S.question)}`;
+}
+ 
+function renderPrompt(){
+  $("promptOut").innerHTML = buildPrompt();
+  const ragChars = S.kept.reduce((n,c)=>n+c.text.length,0);
+  const allChars = S.chunks.reduce((n,c)=>n+c.text.length,0);
+  const tk = n => Math.max(1, Math.ceil(n/4));
+  const ratio = ragChars ? (allChars/ragChars).toFixed(1) : "—";
+  $("costStats").innerHTML = `
+    <div class="stat"><span class="k">${tk(ragChars)}</span><span class="l">context tokens sent</span></div>
+    <div class="stat"><span class="k">${tk(allChars)}</span><span class="l">if you pasted everything</span></div>
+    <div class="stat"><span class="k">${ratio}&times;</span><span class="l">saved, every query</span></div>`;
+ 
+  const fail = $("failNote");
+  if (!S.question.trim()){
+    $("answerOut").innerHTML = `<span class="empty">Ask something at stage 4.</span>`;
+    fail.style.display = "none";
+  } else if (!S.kept.length){
+    $("answerOut").innerHTML = `I don't have anything in the sources that answers that.`;
+    fail.style.display = "block";
+    fail.innerHTML = `<strong>Retrieval failure — handled well.</strong> Nothing cleared the floor, so the system declined instead of guessing. Drop the floor to 0 and watch it answer anyway, using whatever was nearest. That version feels more capable and is far more dangerous.`;
+  } else {
+    $("answerOut").innerHTML = `Based on the retrieved notes: ` +
+      S.kept.map((c,i)=>`${esc(c.text.split(/(?<=[.!?])\s+/)[0])} <sup>[${i+1}]</sup>`).join(" ");
+    fail.style.display = "block";
+    fail.innerHTML = `<strong>The second failure mode isn't visible here.</strong> A real model can receive exactly these chunks and still produce something subtly wrong — a name swapped, a caveat dropped. Retrieval failure and generation failure need different fixes, and your PRD should measure them separately.`;
+  }
+}
+ 
+function renderCourt(){
+  const pts = S.chunks.map(c => ({...c, p: project(c.vec)}));
+  const qOn = !!S.question.trim();
+  const qv = qOn ? embed(S.question) : null;
+  const qp = qOn ? project(qv) : null;
+  const all = qp ? pts.map(p=>p.p).concat([qp]) : pts.map(p=>p.p);
+  if (!all.length){ $("dots").innerHTML = ""; $("qdot").innerHTML = ""; return; }
+ 
+  const xs = all.map(p=>p[0]), ys = all.map(p=>p[1]);
+  const spread = (arr) => { const lo = Math.min(...arr), hi = Math.max(...arr); return (hi-lo) < 0.001 ? [lo-0.5, lo+0.5] : [lo,hi]; };
+  const [x0,x1] = spread(xs), [y0,y1] = spread(ys);
+  const mx = v => 46 + ((v-x0)/(x1-x0)) * 328;
+  const my = v => 40 + ((v-y0)/(y1-y0)) * 156;
+ 
+  const keptIds = new Set(S.kept.map(c=>c.id));
+  $("dots").innerHTML = pts.map(p => {
+    const hit = keptIds.has(p.id);
+    return `<circle class="dot" cx="${mx(p.p[0]).toFixed(1)}" cy="${my(p.p[1]).toFixed(1)}" r="${hit?6:4}"
+      fill="${hit?"#199B62":"#8FBFA8"}" stroke="${hit?"#DFF3E8":"none"}" stroke-width="1.5"
+      opacity="${qOn && !hit ? .45 : .9}"><title>chunk ${p.id} — ${esc(p.doc)}</title></circle>`;
+  }).join("");
+ 
+  if (qp){
+    const cx = mx(qp[0]), cy = my(qp[1]);
+    let r = 0;
+    if (S.kept.length){
+      r = Math.max(...S.kept.map(c => {
+        const pp = project(c.vec);
+        return Math.hypot(mx(pp[0])-cx, my(pp[1])-cy);
+      })) + 10;
+    }
+    $("halo").setAttribute("cx", cx.toFixed(1));
+    $("halo").setAttribute("cy", cy.toFixed(1));
+    $("halo").setAttribute("r", r.toFixed(1));
+    $("halo").setAttribute("opacity", r ? ".8" : "0");
+    $("qdot").innerHTML = `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="7" fill="#D6402A" stroke="#fff" stroke-width="1.6"><title>your question</title></circle>`;
+  } else {
+    $("halo").setAttribute("opacity","0");
+    $("qdot").innerHTML = "";
+  }
+}
+ 
+function refresh(){
+  chunkAll();
+  retrieve();
+  renderDocs(); renderChunks(); renderEmbed(); renderQuestion(); renderResults(); renderPrompt(); renderCourt();
+}
+ 
+/* ---------- navigation ---------- */
+function go(n){
+  document.querySelectorAll(".stage").forEach(el => el.classList.toggle("on", el.id === "s"+n));
+  document.querySelectorAll(".rail button").forEach(b => b.setAttribute("aria-selected", b.dataset.go === String(n)));
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+document.addEventListener("click", e => {
+  const nav = e.target.closest("[data-go]");
+  if (nav){ go(nav.dataset.go); return; }
+  const del = e.target.closest("[data-del]");
+  if (del){ S.docs.splice(+del.dataset.del, 1); refresh(); }
+});
+ 
+$("addDoc").onclick = () => {
+  const t = $("dTitle").value.trim(), b = $("dBody").value.trim();
+  if (!b) { $("dBody").focus(); return; }
+  S.docs.push({ t: t || "Untitled source", b });
+  $("dTitle").value = ""; $("dBody").value = "";
+  refresh();
+};
+$("resetDocs").onclick = () => { S.docs = SAMPLES.map(d=>({...d})); refresh(); };
+ 
+$("cs").oninput = e => { S.chunkSize = +e.target.value; $("csOut").textContent = e.target.value + " chars"; refresh(); };
+$("k").oninput  = e => { S.k = +e.target.value; $("kOut").textContent = e.target.value; retrieve(); renderResults(); renderPrompt(); renderCourt(); };
+$("th").oninput = e => { S.floor = +e.target.value; $("thOut").textContent = (+e.target.value).toFixed(2); retrieve(); renderResults(); renderPrompt(); renderCourt(); };
+$("q").oninput  = e => { S.question = e.target.value; retrieve(); renderQuestion(); renderResults(); renderPrompt(); renderCourt(); };
+ 
+$("presets").innerHTML = PRESETS.map(p=>`<button type="button">${esc(p)}</button>`).join("");
+$("presets").onclick = e => {
+  if (e.target.tagName !== "BUTTON") return;
+  S.question = e.target.textContent;
+  $("q").value = S.question;
+  retrieve(); renderQuestion(); renderResults(); renderPrompt(); renderCourt();
+};
+ 
+refresh();
+</script>
+</body>
+</html>
+ 
